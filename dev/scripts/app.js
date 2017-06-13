@@ -9,12 +9,12 @@ import {
 // import _ from 'underscore';
 
 const config = {
-    apiKey: "AIzaSyAT2FOHYxLaBE4ioV3zUgppcN2rWvzDMD8",
-    authDomain: "flashcards-199bb.firebaseapp.com",
-    databaseURL: "https://flashcards-199bb.firebaseio.com",
-    projectId: "flashcards-199bb",
-    storageBucket: "flashcards-199bb.appspot.com",
-    messagingSenderId: "1089518784429"
+    apiKey: 'AIzaSyAT2FOHYxLaBE4ioV3zUgppcN2rWvzDMD8',
+    authDomain: 'flashcards-199bb.firebaseapp.com',
+    databaseURL: 'https://flashcards-199bb.firebaseio.com',
+    projectId: 'flashcards-199bb',
+    storageBucket: 'flashcards-199bb.appspot.com',
+    messagingSenderId: '1089518784429'
 };
 firebase.initializeApp(config);
 
@@ -51,7 +51,7 @@ class BuildDeck extends React.Component {
         this.dbRef.off();
     }
     componentDidMount() {
-        this.dbRef.on("value", (firebaseData) => {
+        this.dbRef.on('value', (firebaseData) => {
             const decksArray = [];
             const deckData = firebaseData.val();
 
@@ -70,9 +70,9 @@ class BuildDeck extends React.Component {
             <div>
                 <h1>Build a Deck</h1>
                 <form onSubmit={this.createDeck}>
-                    <label htmlFor="deck">Deck Name </label>
-                    <input name="name" value={this.state.name} onChange={this.handleChange} type="text" />
-                    <input type="submit" value="Give the deck a name" />
+                    <label htmlFor='deck'>Deck Name </label>
+                    <input name='name' value={this.state.name} onChange={this.handleChange} type='text' />
+                    <input type='submit' value='Give the deck a name' />
                 </form>
             </div>
         )
@@ -98,7 +98,7 @@ class MakeCard extends React.Component {
             question: '',
             answer: ''
         });
-        const dbRef = firebase.database().ref("/" + this.props.match.params.deckId + "/cards");
+        const dbRef = firebase.database().ref('/' + this.props.match.params.deckId + '/cards');
         dbRef.push({ question: this.state.question, answer: this.state.answer });
     }
 
@@ -111,7 +111,7 @@ class MakeCard extends React.Component {
     componentDidMount() {
         const dbRef = firebase.database().ref();
 
-        dbRef.on("value", (firebaseData) => {
+        dbRef.on('value', (firebaseData) => {
             const cardsArray = [];
             const cardsData = firebaseData.val();
 
@@ -133,11 +133,11 @@ class MakeCard extends React.Component {
                     <h2>Create a Card</h2>
                     
                     <form onSubmit={this.addCard}>
-                        <label htmlFor="question">Question: </label>
-                        <input name="question" value={this.state.question} onChange={this.handleChange} type="text" />
-                        <label htmlFor="answer">Answer: </label>
-                        <input name="answer" value={this.state.answer} onChange={this.handleChange} type="text" />
-                        <input type="submit" value="Create a card" />
+                        <label htmlFor='question'>Question: </label>
+                        <input name='question' value={this.state.question} onChange={this.handleChange} type='text' />
+                        <label htmlFor='answer'>Answer: </label>
+                        <input name='answer' value={this.state.answer} onChange={this.handleChange} type='text' />
+                        <input type='submit' value='Create a card' />
                     </form>
                     <div>
                         <DisplayCards deckKey={this.props.match.params.deckId} />
@@ -158,7 +158,7 @@ class DisplayCards extends React.Component {
     }
     removeCard(cardToRemove) {
         // console.log(cardToRemove);
-        const dbRef = firebase.database().ref('/').child(this.props.deckKey).child("cards").child(cardToRemove)
+        const dbRef = firebase.database().ref('/').child(this.props.deckKey).child('cards').child(cardToRemove)
         dbRef.remove();
     }
     render() {
@@ -182,7 +182,7 @@ class DisplayCards extends React.Component {
     componentDidMount() {
         const deckRef = firebase.database().ref(`/${this.props.deckKey}/cards`);
 
-        deckRef.on("value", (firebaseData) => {
+        deckRef.on('value', (firebaseData) => {
             // console.log(firebaseData.val());
 
             const cardsArray = [];
@@ -246,7 +246,7 @@ class DisplayDecks extends React.Component {
     }
     componentDidMount() {
 
-        this.dbRef.on("value", (firebaseData) => {
+        this.dbRef.on('value', (firebaseData) => {
             const decksArray = [];
             const deckData = firebaseData.val();
 
@@ -270,15 +270,17 @@ class App extends React.Component {
         return (
             <Router>
                 <div>
-                    <header>
-                        <h1>This is a flashcard app (Alpha)</h1>
+                    <header className='title'>
+                        <a href="/"><h1>Flash-<span className='smallTitle'>v</span>lite</h1></a>
                     </header>
                     <main>
-                        <Link to="/displayDecks"><button>Display Decks</button></Link>
-                        <Route path="/displayDecks" component={DisplayDecks} />
-                        <Link to="/buildDeck"><button>Build a Deck</button></Link>
-                        <Route path="/buildDeck" component={BuildDeck} />
-                        <Route path="/makeCards/:deckId" component={MakeCard} />
+                        <nav className='buttonNav'>
+                            <Link to='/displayDecks'><button className='button'>Display Decks</button></Link>
+                            <Link to='/buildDeck'><button className='button'>Build A Deck</button></Link>
+                        </nav>
+                        <Route path='/displayDecks' component={DisplayDecks} />
+                        <Route path='/buildDeck' component={BuildDeck} />
+                        <Route path='/makeCards/:deckId' component={MakeCard} />
                     </main>
                 </div>
             </Router>

@@ -98,15 +98,9 @@ class MakeCard extends React.Component {
             question: '',
             answer: ''
         });
-        const dbRef = firebase.database().ref("/" + this.props.deckId);
+        const dbRef = firebase.database().ref("/" + this.props.match.params.deckId + "/cards");
         dbRef.push({ question: this.state.question, answer: this.state.answer });
     }
-
-    // removeCard(cardToRemove) {
-    //     console.log(cardToRemove);
-    //     const dbRef = firebase.database().ref(cardToRemove);
-    //     dbRef.remove();
-    // }
 
     handleChange(e) {
         this.setState({
@@ -137,6 +131,7 @@ class MakeCard extends React.Component {
             <Router>
                 <div>
                     <h2>Create a Card</h2>
+                    
                     <form onSubmit={this.addCard}>
                         <label htmlFor="question">Question: </label>
                         <input name="question" value={this.state.question} onChange={this.handleChange} type="text" />
@@ -145,7 +140,7 @@ class MakeCard extends React.Component {
                         <input type="submit" value="Create a card" />
                     </form>
                     <div>
-                        <DisplayCards deckKey={this.props.deckKey} />
+                        <DisplayCards deckKey={this.props.match.params.deckId} />
                     </div>
                 </div>
             </Router>
@@ -162,18 +157,18 @@ class DisplayCards extends React.Component {
         this.removeCard = this.removeCard.bind(this)
     }
     removeCard(cardToRemove) {
-        console.log(cardToRemove);
-        const dbRef = firebase.database().ref(cardToRemove);
+        // console.log(cardToRemove);
+        const dbRef = firebase.database().ref('/').child(this.props.deckKey).child("cards").child(cardToRemove)
         dbRef.remove();
     }
     render() {
         return (
             <div>
-                <h2>Cards Will Be Displayed Below</h2>
+                <h2>Cards</h2>
                 <ul>
                     {this.state.cards.map((card) => {
                         return (
-                            <li>
+                            <li key={card.key}>
                                 {card.question}: {card.answer}
                                 <button onClick={() => this.removeCard(card.key)}>❌</button>
                             </li>
@@ -185,19 +180,21 @@ class DisplayCards extends React.Component {
     }
 
     componentDidMount() {
-        const deckRef = firebase.database().ref(`/${this.props.deckKey}`);
+        const deckRef = firebase.database().ref(`/${this.props.deckKey}/cards`);
 
         deckRef.on("value", (firebaseData) => {
             // console.log(firebaseData.val());
 
             const cardsArray = [];
             const cardsData = firebaseData.val();
+            console.log(cardsData);
 
             for (let cardKey in cardsData) {
-                const card = {};
-                card.question = cardsData[cardKey].question;
-                card.answer = cardsData[cardKey].answer;
-                cardsArray.push(card);
+                cardsArray.push({
+                    question: cardsData[cardKey].question,
+                    answer: cardsData[cardKey].answer,
+                    key: cardKey
+                });
             }
 
             this.setState({
@@ -217,7 +214,7 @@ class DisplayDecks extends React.Component {
     }
 
     removeDeck(deckToRemove) {
-        console.log(deckToRemove);
+        // console.log(deckToRemove);
         const dbRef = firebase.database().ref(deckToRemove);
         dbRef.remove();
     }
@@ -225,22 +222,21 @@ class DisplayDecks extends React.Component {
         return (
             <div>
                 <h1>Display Decks</h1>
-                {this.state.decks.map((deck) => {
-                    return (
-                        <Router>
+                <ul>
+                    {this.state.decks.map((deck) => {
+                        return (
                             <li>
                                 {deck.name}
-                                <button>Play</button>
-                                <Link to={`/buildDeck/${deck.key}`}>
+                                {/*<button>Play</button>*/}
+                                {/*<Link to={`/buildDeck/${deck.key}`}>
                                     <button>Edit</button>
-                                </Link>
+                                </Link>*/}
                                 <button onClick={() => this.removeDeck(deck.key)}>❌</button>
-                                <Route path='/buildDeck/:deckId'
-                                    render={() => <MakeCard deckKey={deck.key} />} />
+                                <Link to={`/makeCards/${deck.key}`}>Make cards for this deck</Link>
                             </li>
-                        </Router>
-                    )
-                })}
+                        )
+                    })}
+                </ul>
             </div>
 
         )
@@ -249,7 +245,6 @@ class DisplayDecks extends React.Component {
         this.dbRef.off();
     }
     componentDidMount() {
-        console.log("asdhjasjlkhdk")
 
         this.dbRef.on("value", (firebaseData) => {
             const decksArray = [];
@@ -276,13 +271,14 @@ class App extends React.Component {
             <Router>
                 <div>
                     <header>
-                        <h1>This is a flashcard app</h1>
+                        <h1>This is a flashcard app (Alpha)</h1>
                     </header>
                     <main>
                         <Link to="/displayDecks"><button>Display Decks</button></Link>
                         <Route path="/displayDecks" component={DisplayDecks} />
                         <Link to="/buildDeck"><button>Build a Deck</button></Link>
                         <Route path="/buildDeck" component={BuildDeck} />
+                        <Route path="/makeCards/:deckId" component={MakeCard} />
                     </main>
                 </div>
             </Router>

@@ -4,9 +4,9 @@ import {
     BrowserRouter as Router,
     NavLink as Link,
     Route,
-    Switch
+    // Switch
 } from 'react-router-dom';
-import FlashCard from './components/FlashCard';
+// import _ from 'underscore';
 
 const config = {
     apiKey: "AIzaSyAT2FOHYxLaBE4ioV3zUgppcN2rWvzDMD8",
@@ -19,14 +19,15 @@ const config = {
 firebase.initializeApp(config);
 
 class BuildDeck extends React.Component {
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
         this.state = {
             decks: [],
             name: ''
         }
         this.createDeck = this.createDeck.bind(this);
         this.handleChange = this.handleChange.bind(this);
+        this.dbRef = firebase.database().ref()
     }
 
     createDeck(e) {
@@ -46,11 +47,11 @@ class BuildDeck extends React.Component {
             [e.target.name]: e.target.value
         });
     }
-
+    componentWillUnmount() {
+        this.dbRef.off();
+    }
     componentDidMount() {
-        const dbRef = firebase.database().ref();
-
-        dbRef.on("value", (firebaseData) => {
+        this.dbRef.on("value", (firebaseData) => {
             const decksArray = [];
             const deckData = firebaseData.val();
 
@@ -66,17 +67,14 @@ class BuildDeck extends React.Component {
 
     render() {
         return (
-            <Router>
-                <div>
-                    <h1>Build a Deck</h1>
-                    <form onSubmit={this.createDeck}>
-                        <label htmlFor="deck">Deck Name </label>
-                        <input name="name" value={this.state.name} onChange={this.handleChange} type="text" />
-                        <input type="submit" value="Give deck a name" />
-                    </form>
-                    <MakeCard />
-                </div>
-            </Router>
+            <div>
+                <h1>Build a Deck</h1>
+                <form onSubmit={this.createDeck}>
+                    <label htmlFor="deck">Deck Name </label>
+                    <input name="name" value={this.state.name} onChange={this.handleChange} type="text" />
+                    <input type="submit" value="Give the deck a name" />
+                </form>
+            </div>
         )
     }
 }
@@ -95,23 +93,20 @@ class MakeCard extends React.Component {
 
     addCard(e) {
         e.preventDefault();
-        const cardInfo = {
-            question: this.state.question,
-            answer: this.state.answer
-        }
+
         this.setState({
             question: '',
             answer: ''
         });
-        const dbRef = firebase.database().ref();
-        dbRef.push(cardInfo);
+        const dbRef = firebase.database().ref("/" + this.props.deckId);
+        dbRef.push({ question: this.state.question, answer: this.state.answer });
     }
 
-    removeCard(cardToRemove) {
-        console.log(cardToRemove);
-        const dbRef = firebase.database().ref(cardToRemove);
-        dbRef.remove();
-    }
+    // removeCard(cardToRemove) {
+    //     console.log(cardToRemove);
+    //     const dbRef = firebase.database().ref(cardToRemove);
+    //     dbRef.remove();
+    // }
 
     handleChange(e) {
         this.setState({
@@ -127,20 +122,7 @@ class MakeCard extends React.Component {
             const cardsData = firebaseData.val();
 
             for (let cardKey in cardsData) {
-                /*
-                {
-                    question: "question 1",
-                    answer: "answer 1"
-                }
-                */
                 cardsData[cardKey].key = cardKey;
-                /*
-                {
-                    question: "question 1",
-                    answer: "answer 1",
-                    key: "-KmMW_Gec0inC2E7nXxE"
-                }
-                */
                 cardsArray.push(cardsData[cardKey]);
             }
 
@@ -152,28 +134,137 @@ class MakeCard extends React.Component {
 
     render() {
         return (
-            <div>
-                <h2>Card Creation Form</h2>
-                <form onSubmit={this.addCard}>
-                    <label htmlFor="question">Question: </label>
-                    <input name="question" value={this.state.question} onChange={this.handleChange} type="text" />
-                    <label htmlFor="answer">Answer: </label>
-                    <input name="answer" value={this.state.answer} onChange={this.handleChange} type="text" />
-                    <input type="submit" value="Create a card" />
-                </form>
+            <Router>
                 <div>
-                    <h2>Cards Will Be Displayed Below</h2>
-                    <ul>
-                        {this.state.cards.map((card, i) => {
-                            return <FlashCard data={card} key={card.key} remove={this.removeCard} />
-                        })}
-                    </ul>
+                    <h2>Create a Card</h2>
+                    <form onSubmit={this.addCard}>
+                        <label htmlFor="question">Question: </label>
+                        <input name="question" value={this.state.question} onChange={this.handleChange} type="text" />
+                        <label htmlFor="answer">Answer: </label>
+                        <input name="answer" value={this.state.answer} onChange={this.handleChange} type="text" />
+                        <input type="submit" value="Create a card" />
+                    </form>
+                    <div>
+                        <DisplayCards deckKey={this.props.deckKey} />
+                    </div>
                 </div>
-            </div>
+            </Router>
         )
     }
 }
 
+class DisplayCards extends React.Component {
+    constructor() {
+        super();
+        this.state = {
+            cards: [],
+        }
+        this.removeCard = this.removeCard.bind(this)
+    }
+    removeCard(cardToRemove) {
+        console.log(cardToRemove);
+        const dbRef = firebase.database().ref(cardToRemove);
+        dbRef.remove();
+    }
+    render() {
+        return (
+            <div>
+                <h2>Cards Will Be Displayed Below</h2>
+                <ul>
+                    {this.state.cards.map((card) => {
+                        return (
+                            <li>
+                                {card.question}: {card.answer}
+                                <button onClick={() => this.removeCard(card.key)}>❌</button>
+                            </li>
+                        )
+                    })}
+                </ul>
+            </div>
+        )
+    }
+
+    componentDidMount() {
+        const deckRef = firebase.database().ref(`/${this.props.deckKey}`);
+
+        deckRef.on("value", (firebaseData) => {
+            // console.log(firebaseData.val());
+
+            const cardsArray = [];
+            const cardsData = firebaseData.val();
+
+            for (let cardKey in cardsData) {
+                const card = {};
+                card.question = cardsData[cardKey].question;
+                card.answer = cardsData[cardKey].answer;
+                cardsArray.push(card);
+            }
+
+            this.setState({
+                cards: cardsArray
+            })
+        })
+    }
+}
+
+class DisplayDecks extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            decks: []
+        }
+        this.dbRef = firebase.database().ref()
+    }
+
+    removeDeck(deckToRemove) {
+        console.log(deckToRemove);
+        const dbRef = firebase.database().ref(deckToRemove);
+        dbRef.remove();
+    }
+    render() {
+        return (
+            <div>
+                <h1>Display Decks</h1>
+                {this.state.decks.map((deck) => {
+                    return (
+                        <Router>
+                            <li>
+                                {deck.name}
+                                <button>Play</button>
+                                <Link to={`/buildDeck/${deck.key}`}>
+                                    <button>Edit</button>
+                                </Link>
+                                <button onClick={() => this.removeDeck(deck.key)}>❌</button>
+                                <Route path='/buildDeck/:deckId'
+                                    render={() => <MakeCard deckKey={deck.key} />} />
+                            </li>
+                        </Router>
+                    )
+                })}
+            </div>
+
+        )
+    }
+    componentWillUnmount() {
+        this.dbRef.off();
+    }
+    componentDidMount() {
+        console.log("asdhjasjlkhdk")
+
+        this.dbRef.on("value", (firebaseData) => {
+            const decksArray = [];
+            const deckData = firebaseData.val();
+
+            for (let deckKey in deckData) {
+                deckData[deckKey].key = deckKey;
+                decksArray.push(deckData[deckKey]);
+            }
+            this.setState({
+                decks: decksArray
+            })
+        })
+    }
+}
 
 
 class App extends React.Component {
@@ -188,6 +279,8 @@ class App extends React.Component {
                         <h1>This is a flashcard app</h1>
                     </header>
                     <main>
+                        <Link to="/displayDecks"><button>Display Decks</button></Link>
+                        <Route path="/displayDecks" component={DisplayDecks} />
                         <Link to="/buildDeck"><button>Build a Deck</button></Link>
                         <Route path="/buildDeck" component={BuildDeck} />
                     </main>

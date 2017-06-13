@@ -131,7 +131,7 @@ class MakeCard extends React.Component {
             <Router>
                 <div>
                     <h2>Create a Card</h2>
-                    
+
                     <form onSubmit={this.addCard}>
                         <label htmlFor='question'>Question: </label>
                         <input name='question' value={this.state.question} onChange={this.handleChange} type='text' />
@@ -222,21 +222,21 @@ class DisplayDecks extends React.Component {
         return (
             <div>
                 <h1>Display Decks</h1>
-                <ul>
-                    {this.state.decks.map((deck) => {
-                        return (
-                            <li>
-                                {deck.name}
-                                {/*<button>Play</button>*/}
-                                {/*<Link to={`/buildDeck/${deck.key}`}>
+                {this.state.decks.map((deck) => {
+                    return (
+                        <div>
+                            {deck.name}
+                            <Link to={`/playDeck/${deck.key}`}>
+                                <button>Play</button>
+                            </Link>
+                            {/*<Link to={`/buildDeck/${deck.key}`}>
                                     <button>Edit</button>
                                 </Link>*/}
-                                <button onClick={() => this.removeDeck(deck.key)}>❌</button>
-                                <Link to={`/makeCards/${deck.key}`}>Make cards for this deck</Link>
-                            </li>
-                        )
-                    })}
-                </ul>
+                            <button onClick={() => this.removeDeck(deck.key)}>❌</button>
+                            <Link to={`/makeCards/${deck.key}`}>Make cards for this deck</Link>
+                        </div>
+                    )
+                })}
             </div>
 
         )
@@ -261,6 +261,53 @@ class DisplayDecks extends React.Component {
     }
 }
 
+class PlayDeck extends React.Component {
+    constructor() {
+        super()
+        this.state = {
+            decks: []
+        }
+    }
+    render() {
+        return (
+            <div>
+                <h1>Play Deck</h1>
+                {this.state.decks.map((card) => {
+                    return (
+                        <div>
+                            <div>
+                                {card.question}
+                                <button></button>
+                                {/*<button onClick={() => this.removeCard(card.key)}>❌</button>*/}
+                            </div>
+                            <div>
+                                {card.answer}
+                            </div>
+                        </div>
+                    )
+                })}
+            </div>
+        )
+    }
+
+    componentDidMount() {
+        firebase.database().ref(`/${this.props.match.params.deckId}/cards`).on('value', (firebaseData) => {
+            const decksArray = [];
+            const deckData = firebaseData.val();
+
+            for (let deckKey in deckData) {
+                deckData[deckKey].key = deckKey;
+                decksArray.push(deckData[deckKey]);
+            }
+            this.setState({
+                decks: decksArray
+            })
+            console.log(decksArray)
+        })
+    }
+}
+
+
 
 class App extends React.Component {
     constructor() {
@@ -271,7 +318,7 @@ class App extends React.Component {
             <Router>
                 <div>
                     <header className='title'>
-                        <a href="/"><h1>Flash-<span className='smallTitle'>v</span>lite</h1></a>
+                        <a href="/"><h1>Flash-<span className='smallTitle'>lite</span></h1></a>
                     </header>
                     <main>
                         <nav className='buttonNav'>
@@ -281,6 +328,8 @@ class App extends React.Component {
                         <Route path='/displayDecks' component={DisplayDecks} />
                         <Route path='/buildDeck' component={BuildDeck} />
                         <Route path='/makeCards/:deckId' component={MakeCard} />
+                        <Route path='/playDeck/:deckId' component={PlayDeck} />
+
                     </main>
                 </div>
             </Router>

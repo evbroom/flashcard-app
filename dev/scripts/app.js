@@ -200,7 +200,7 @@ class DisplayCards extends React.Component {
                             <i className='fa fa-times delCard' onClick={() => this.removeCard(card.key)}></i>
                         </div>
                     )
-                })}
+                }).reverse()}
             </div>
         )
     }

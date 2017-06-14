@@ -287,11 +287,11 @@ class PlayDeck extends React.Component {
                                 <div className={this.state.condition ? 'singleCard flipped' : 'singleCard'} >
                                     <div className='front'>
                                         {card.question}
-                                        <button onClick={this.flipCard}>Flip</button>
+                                        <button onClick={this.flipCard}>Flip to Back</button>
                                     </div>
                                     <div className='back'>
                                         {card.answer}
-                                        <button onClick={this.flipCard}>Flip</button>
+                                        <button onClick={this.flipCard}>Flip to Front</button>
                                     </div>
                                 </div>
                             </div>

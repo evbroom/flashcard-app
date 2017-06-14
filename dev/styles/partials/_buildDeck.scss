@@ -1,0 +1,22 @@
+.buildDeck {
+    text-align: center;
+}
+
+.createDeck {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    max-width: 100%;
+}
+
+.deckName {
+    margin-top: 10px;
+    margin-bottom: 25px;
+    max-width: 60%;
+}
+
+.buildDeckInstruct {
+    margin-bottom: 30px;
+}
+

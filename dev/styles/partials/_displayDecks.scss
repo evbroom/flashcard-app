@@ -1,0 +1,24 @@
+.fa-times {
+    cursor: pointer;
+    // position: absolute;
+    // right: 5px;
+}
+
+.fa {
+    font-size: 25px;
+}
+
+
+.deckTitle {
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.deckButtons {
+    display: flex;
+    justify-content: space-between;
+}
+
+.fa {
+    margin: 0 10px;
+}

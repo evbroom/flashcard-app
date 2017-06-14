@@ -8,9 +8,30 @@ $base-font-family: 'Quattrocento', serif;
 
 body {
     color: $black;
+    font-family: $base-font-family;
+    font-size: 100%;
 }
 
 a {
     text-decoration: none;
     color: $black;
+}
+
+.formLabel {
+    font-weight: bold;
+}
+
+h1,
+p {
+    margin: 0;
+}
+
+h2 {
+    font-size: 2em;
+    font-family: $heading-font-family;
+    text-align: center;
+}
+
+input[type="text"] {
+    border: 1px solid $black;
 }

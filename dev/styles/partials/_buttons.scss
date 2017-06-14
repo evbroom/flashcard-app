@@ -2,7 +2,7 @@
     border: 1px solid $black;
     padding: 10px 20px;
     display: inline-block;
-    margin-right: 15px;
+    margin: 15px;
     text-transform: uppercase;
     letter-spacing: 1px;
     font-weight: 600;
@@ -13,12 +13,13 @@
     position: relative;
 }
 
-button:hover {
+button:hover,
+input[type="submit"]:hover {
     box-shadow: 0 2px $black;
     top: 2px;
 }
-
-button:active {
+button:active,
+input[type="submit"]:active {
     box-shadow: 0 0 $black;
     top: 4px;
 }

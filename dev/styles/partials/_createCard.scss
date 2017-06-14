@@ -1,0 +1,33 @@
+.createCard {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    max-width: 100%;
+}
+
+.createCardInput {
+    margin-top: 10px;
+    margin-bottom: 25px;
+    max-width: 60%;
+}
+
+.cardTitle {
+    font-family: $heading-font-family;
+    margin-bottom: 10px;
+}
+
+.editCard {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+    text-align: center;
+    font-size: 18px;
+}
+
+.delCard {
+    position: absolute;
+    bottom: 5px;
+    right: 0;
+}

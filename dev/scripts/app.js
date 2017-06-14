@@ -267,7 +267,14 @@ class PlayDeck extends React.Component {
         this.state = {
             decks: []
         }
+        this.flipCard = this.flipCard.bind(this)
     }
+    flipCard(e) {
+        e.preventDefault();
+        console.log('hi!')
+        console.log(this)
+    }
+
     render() {
         return (
             <div>
@@ -275,13 +282,17 @@ class PlayDeck extends React.Component {
                 {this.state.decks.map((card) => {
                     return (
                         <div>
-                            <div>
-                                {card.question}
-                                <button></button>
-                                {/*<button onClick={() => this.removeCard(card.key)}>❌</button>*/}
-                            </div>
-                            <div>
-                                {card.answer}
+                            <div className='cardContainer'>
+                                <div className='singleCard'>
+                                    <div className='front'>
+                                        {card.question}
+                                        {/*<button></button>*/}
+                                        {/*<button onClick={() => this.removeCard(card.key)}>❌</button>*/}
+                                    </div>
+                                    <div className='back'>
+                                        {card.answer}
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     )

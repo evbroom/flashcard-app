@@ -265,14 +265,15 @@ class PlayDeck extends React.Component {
     constructor() {
         super()
         this.state = {
-            decks: []
+            decks: [],
+            condition: false
         }
         this.flipCard = this.flipCard.bind(this)
     }
-    flipCard(e) {
-        e.preventDefault();
-        console.log('hi!')
-        console.log(this)
+    flipCard() {
+        this.setState({
+            condition: !this.state.condition
+        });
     }
 
     render() {
@@ -283,14 +284,14 @@ class PlayDeck extends React.Component {
                     return (
                         <div>
                             <div className='cardContainer'>
-                                <div className='singleCard'>
+                                <div className={this.state.condition ? 'singleCard flipped' : 'singleCard'} >
                                     <div className='front'>
                                         {card.question}
-                                        {/*<button></button>*/}
-                                        {/*<button onClick={() => this.removeCard(card.key)}>❌</button>*/}
+                                        <button onClick={this.flipCard}>Flip</button>
                                     </div>
                                     <div className='back'>
                                         {card.answer}
+                                        <button onClick={this.flipCard}>Flip</button>
                                     </div>
                                 </div>
                             </div>
@@ -313,7 +314,7 @@ class PlayDeck extends React.Component {
             this.setState({
                 decks: decksArray
             })
-            console.log(decksArray)
+            // console.log(decksArray)
         })
     }
 }

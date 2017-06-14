@@ -266,14 +266,12 @@ class PlayDeck extends React.Component {
         super()
         this.state = {
             decks: [],
-            condition: false
         }
         this.flipCard = this.flipCard.bind(this)
     }
-    flipCard() {
-        this.setState({
-            condition: !this.state.condition
-        });
+    flipCard(cardId) {
+        console.log(cardId)
+        this.singleCard.classList.toggle('flipped')
     }
 
     render() {
@@ -284,14 +282,12 @@ class PlayDeck extends React.Component {
                     return (
                         <div>
                             <div className='cardContainer'>
-                                <div className={this.state.condition ? 'singleCard flipped' : 'singleCard'} >
+                                <div ref={ref => this.singleCard = ref} className='singleCard' onClick={() => this.flipCard(card.key)}>
                                     <div className='front'>
                                         {card.question}
-                                        <button onClick={this.flipCard}>Flip to Back</button>
                                     </div>
                                     <div className='back'>
                                         {card.answer}
-                                        <button onClick={this.flipCard}>Flip to Front</button>
                                     </div>
                                 </div>
                             </div>

@@ -1,18 +1,10 @@
-/*THINGS THAT AREN'T WORKING:
-
-1. Only the last card in a deck can flip over. I broke this functionality late last night, and I cant seem to fix it, so I haphazardly set it up as well as I could with the time that I had.
-
-2. I can't seem to display the cards in a row, I believe it's a style issue.
-
-3. The app is difficult to navigate at the moment (no breadcrumbs, awkward routing).
-
-4. CSS is not very DRY
+/*
 
 TODOS:
 
-- Authentication (both user, and form fields)
+- User authentication
+- Form field validation
 - Alert to confirm before a user deletes anything
-- Display cards in rows
 - On top of my other list of nice-to-have's.. a "Night Mode" with a black background, light text.. I'll call it "Flash Nite" Mode
 - Add a footer
 - Make card input fields textarea's instead
@@ -91,7 +83,7 @@ class BuildDeck extends React.Component {
         return (
             <div className='buildDeck'>
                 <h2>Build A Deck</h2>
-                <p className='buildDeckInstruct'>Give your deck a name, then head back to Display Decks to see your deck.</p>
+                <p className='buildDeckInstruct'>Give your deck a name, then click back on Display Decks to see your deck.</p>
                 <form className="createDeck" onSubmit={this.createDeck}>
                     <label className="formLabel" htmlFor='deck'>Deck Name </label>
                     <input className="deckName" name='name' value={this.state.name} onChange={this.handleChange} type='text' />
@@ -148,21 +140,26 @@ class MakeCard extends React.Component {
             })
         })
     }
-
     render() {
         return (
             <Router>
                 <div>
-                    <h2>Create a Card</h2>
-                    <form className='createCard' onSubmit={this.addCard}>
-                        <label htmlFor='question'>Question: </label>
-                        <input className='createCardInput' name='question' value={this.state.question} onChange={this.handleChange} type='text' />
-                        <label htmlFor='answer'>Answer: </label>
-                        <input className='createCardInput' name='answer' value={this.state.answer} onChange={this.handleChange} type='text' />
-                        <input className='button' type='submit' value='Create a card' />
-                    </form>
-                    <div>
-                        <DisplayCards deckKey={this.props.match.params.deckId} />
+                    <div className='cardContainer'>
+                        <h2>Create a Card</h2>
+                        <form className='createCard' onSubmit={this.addCard}>
+                            <div className='cardInput'>
+                                <label htmlFor='question'>Question: </label>
+                                <textarea rows='5' cols='30' className='createCardInput' name='question' value={this.state.question} onChange={this.handleChange}></textarea>
+                            </div>
+                            <div className='cardInput'>
+                                <label htmlFor='answer'>Answer: </label>
+                                <textarea rows='5' cols='30' className='createCardInput' name='answer' value={this.state.answer} onChange={this.handleChange}></textarea>
+                            </div>
+                            <input className='button' type='submit' value='Create a card' />
+                        </form>
+                        <div>
+                            <DisplayCards deckKey={this.props.match.params.deckId} />
+                        </div>
                     </div>
                 </div>
             </Router>
@@ -186,21 +183,23 @@ class DisplayCards extends React.Component {
         return (
             <div>
                 <h2>Cards</h2>
-                {this.state.cards.map((card) => {
-                    return (
-                        <div className='singleCard editCard' key={card.key}>
-                            <div>
-                                <p className='cardTitle'>Question</p>
-                                <p>{card.question}</p>
+                <div className="cardWrap">
+                    {this.state.cards.map((card) => {
+                        return (
+                            <div className='oneCard editCard' key={card.key}>
+                                <div>
+                                    <p className='cardTitle'>Question</p>
+                                    <p>{card.question}</p>
+                                </div>
+                                <div>
+                                    <p className='cardTitle'>Answer</p>
+                                    <p>{card.answer}</p>
+                                </div>
+                                <i className='fa fa-times delCard' onClick={() => { if (confirm('Delete this card?')) { this.removeCard(card.key) } }}></i>
                             </div>
-                            <div>
-                                <p className='cardTitle'>Answer</p>
-                                <p>{card.answer}</p>
-                            </div>
-                            <i className='fa fa-times delCard' onClick={() => this.removeCard(card.key)}></i>
-                        </div>
-                    )
-                }).reverse()}
+                        )
+                    }).reverse()}
+                </div>
             </div>
         )
     }
@@ -211,7 +210,6 @@ class DisplayCards extends React.Component {
         deckRef.on('value', (firebaseData) => {
             const cardsArray = [];
             const cardsData = firebaseData.val();
-            console.log(cardsData);
 
             for (let cardKey in cardsData) {
                 cardsArray.push({
@@ -237,30 +235,36 @@ class DisplayDecks extends React.Component {
     }
 
     removeDeck(deckToRemove) {
-        // console.log(deckToRemove);
         const dbRef = firebase.database().ref(deckToRemove);
         dbRef.remove();
     }
     render() {
         return (
             <div>
-                <h2>Display Decks</h2>
-                {this.state.decks.map((deck) => {
-                    return (
-                        <div>
-                            <div className='singleCard deckCard'>
-                                <p className='deckTitle'>{deck.name}</p>
-                                <div className='deckButtons'>
-                                    <Link to={`/makeCards/${deck.key}`}><i className="fa fa-pencil-square-o"></i></Link>
-                                    <Link to={`/playDeck/${deck.key}`}>
-                                        <i className="fa fa-play-circle-o"></i>
-                                    </Link>
-                                    <i onClick={() => this.removeDeck(deck.key)} className='fa fa-times'></i>
+                <div className='wrapper'>
+                    <h2>The Decks</h2>
+                    <p></p>
+                    <div className='deckContainer'>
+                        {this.state.decks.map((deck) => {
+                            return (
+                                <div>
+                                    <div className='oneCard' key={deck.key}>
+                                        <div class='titleContainer'>
+                                            <p className='deckTitle'>{deck.name}</p>
+                                        </div>
+                                        <div className='deckButtons'>
+                                            <Link to={`/makeCards/${deck.key}`}><i className="fa fa-pencil-square-o"></i></Link>
+                                            <Link to={`/playDeck/${deck.key}`}>
+                                                <i className="fa fa-play-circle-o"></i>
+                                            </Link>
+                                            <i onClick={() => { if (confirm('Delete this deck?')) { this.removeDeck(deck.key) } }} className='fa fa-times'></i>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
-                    )
-                })}
+                            )
+                        })}
+                    </div>
+                </div>
             </div>
         )
     }
@@ -290,32 +294,21 @@ class PlayDeck extends React.Component {
         this.state = {
             decks: [],
         }
-        this.flipCard = this.flipCard.bind(this)
     }
-    flipCard(cardId) {
-        this.singleCard.classList.toggle('flipped')
-    }
-
     render() {
         return (
             <div>
                 <h2>Play Deck</h2>
-                {this.state.decks.map((card) => {
-                    return (
-                        <div>
-                            <div className='cardContainer'>
-                                <div className='singleCard' ref={ref => this.singleCard = ref} onClick={() => this.flipCard(card.key)}>
-                                    <div className='front'>
-                                        <p>{card.question}</p>
-                                    </div>
-                                    <div className='back'>
-                                        <p>{card.answer}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    )
-                })}
+                <p className='playDirections'>Tap on a card to flip it over and reveal the answer.</p>
+                <div className='wrapper'>
+                    <div className='deckContainer'>
+                        {this.state.decks.map((card) => {
+                            return (
+                                <PlayCard card={card} key={card.key} />
+                            )
+                        })}
+                    </div>
+                </div>
             </div>
         )
     }
@@ -335,6 +328,34 @@ class PlayDeck extends React.Component {
     }
 }
 
+class PlayCard extends React.Component {
+    constructor() {
+        super();
+        this.state = {
+            flipped: false
+        };
+        this.flipCard = this.flipCard.bind(this);
+    }
+    flipCard() {
+        this.setState({
+            flipped: this.state.flipped ? false : true
+        });
+    }
+    render() {
+        const className = this.state.flipped ? "flipped oneCard" : "oneCard";
+        return (
+            <div className={className} onClick={this.flipCard}>
+                <div className='front'>
+                    <p className>{this.props.card.question}</p>
+                </div>
+                <div className='back'>
+                    <p>{this.props.card.answer}</p>
+                </div>
+            </div>
+        )
+    }
+}
+
 class App extends React.Component {
     constructor() {
         super();
@@ -346,13 +367,13 @@ class App extends React.Component {
                     <header className='title'>
                         <a href="/"><h1>Flash-<span className='smallTitle'>lite</span></h1></a>
                         <p className="subheading">A flashcard app.</p>
+                        <p className="instructions">Click below to build a new deck or display all of the existing decks.</p>
                     </header>
                     <main>
                         <nav className='buttonNav'>
                             <Link to='/displayDecks'><button className='button'>Display Decks</button></Link>
                             <Link to='/buildDeck'><button className='button'>Build A Deck</button></Link>
                         </nav>
-
                     </main>
                     <Route path='/displayDecks' component={DisplayDecks} />
                     <Route path='/buildDeck' component={BuildDeck} />

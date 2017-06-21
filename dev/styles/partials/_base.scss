@@ -35,3 +35,18 @@ h2 {
 input[type="text"] {
     border: 1px solid $black;
 }
+
+.wrapper {
+    max-width: 90%;
+    margin: 0 auto;
+}
+
+textarea, label {
+    display: block;
+}
+
+textarea {
+    border: 1px solid black;
+    width: 500px;
+    resize: none;
+}

@@ -28,6 +28,24 @@
 
 .delCard {
     position: absolute;
-    bottom: 5px;
+    top: 5px;
     right: 0;
+}
+
+.cardForm {
+    display: flex;
+}
+
+.cardContainer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    flex-direction: column;
+    margin: 0 auto;
+}
+
+.cardInput {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
